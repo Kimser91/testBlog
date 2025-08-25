@@ -1,16 +1,17 @@
 <!DOCTYPE html>
-<html>
+<html lang="no">
   <head>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8" />
     <title>Bloggadmin</title>
-    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
   </head>
   <body>
+
+    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+    
     <script>
-      window.CMS_MANUAL_INIT = true;
-    </script>
-        <script>
-      CMS.init();
+      window.addEventListener("DOMContentLoaded", () => {
+        CMS.init();
+      });
     </script>
   </body>
 </html>
