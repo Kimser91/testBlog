@@ -6,7 +6,7 @@ media_folder: "src/images/uploads"
 public_folder: "/images/uploads"
 
 media_library:
-  name: uploadcare
+  name: upload
 
 collections:
   - name: "blog"
