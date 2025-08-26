@@ -13,5 +13,38 @@
 Jeg bruker 11ty + Decap for å bygge min egen blogg.</p>
 
     </main>
+
+    <!-- Netlify Identity widget -->
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <script>
+      // Init på alle sider
+      if (window.netlifyIdentity) {
+        netlifyIdentity.on('init', user => {
+          // console.log('Identity init', user)
+        });
+        netlifyIdentity.init();
+      }
+
+      // Håndter invite / recovery tokens i URL-hashen
+      (function handleIdentityTokens() {
+        const h = window.location.hash || '';
+        if (!window.netlifyIdentity || !h) return;
+
+        if (h.includes('recovery_token=')) {
+          // Reset-passord-flow
+          netlifyIdentity.open('login');
+        } else if (h.includes('invite_token=')) {
+          // Aksepter invitasjon-flow
+          netlifyIdentity.open('signup');
+        }
+      })();
+
+      // (valgfritt) Etter vellykket login → hopp rett til /admin/
+      if (window.netlifyIdentity) {
+        netlifyIdentity.on('login', () => {
+          window.location.href = '/admin/';
+        });
+      }
+    </script>
   </body>
 </html>
