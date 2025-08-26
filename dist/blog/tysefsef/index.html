@@ -3,83 +3,59 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/styles.css">
     <title>tysefsef</title>
   </head>
   <body>
-    <nav>
-      <a href="/">Hjem</a> | <a href="/blog/">Blogg</a> | <a href="/admin/">Admin</a>
-      <!-- Valgfritt: manuelle knapper -->
-      <!-- <button type="button" id="id-open-login">Logg inn</button>
-      <button type="button" id="id-open-signup">Opprett bruker</button>
-      <button type="button" id="id-logout">Logg ut</button> -->
+    <nav class="site-nav" aria-label="Hovednavigasjon">
+      <div class="container nav-inner">
+        <a class="brand" href="/">KimBlogg</a>
+        <div class="nav-links">
+          <a href="/">Hjem</a>
+          <a href="/blog/">Blogg</a>
+          <a href="/admin/">Admin</a>
+        </div>
+      </div>
     </nav>
 
-    <main>
-      <p>esfgeshgsdhfhzxhfasjertgerg</p>
+    <!-- Støtter både Eleventy layout-innsprøytning og Nunjucks blocks -->
+    <main class="container prose" id="main-content">
+      
+  <article>
+    <h1>tysefsef</h1>
+    <p><em>Publisert: 26.08.2025</em></p>
+    <p>esfgeshgsdhfhzxhfasjertgerg</p>
+
+  </article>
 
     </main>
+
+    <footer class="site-footer">
+      <div class="container">© Invalid DateTime Kim Halvar Thoresen</div>
+    </footer>
 
     <!-- Netlify Identity widget -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <script>
       (function () {
-        // Hjelpefunksjon: åpne riktig modal basert på hash
         function openModalForHash(h) {
           if (!h || !window.netlifyIdentity) return;
           if (h.includes('invite_token=')) {
-            console.log('[Identity] invite_token registrert → åpner signup-modal');
             netlifyIdentity.open('signup');
           } else if (h.includes('recovery_token=')) {
-            console.log('[Identity] recovery_token registrert → åpner login-modal');
             netlifyIdentity.open('login');
           }
         }
-
-        // Init og hendelser
         function initIdentity() {
           if (!window.netlifyIdentity) return;
-
-          // Init widget
           netlifyIdentity.init();
-
-          // Når widgeten er klar
-          netlifyIdentity.on('init', (user) => {
-            console.log('[Identity] init, user:', user);
-            // Sjekk hash ved første last
-            openModalForHash(window.location.hash);
-          });
-
-          // Håndter feil
-          netlifyIdentity.on('error', (err) => {
-            console.error('[Identity] error:', err);
-          });
-
-          // Etter login → gå til /admin/
-          netlifyIdentity.on('login', () => {
-            window.location.href = '/admin/';
-          });
-
-          // Etter logout → tilbake til forsiden (valgfritt)
-          netlifyIdentity.on('logout', () => {
-            window.location.href = '/';
-          });
-
-          // Lytt også på hash-endringer (i tilfelle lenken endrer hash etter load)
-          window.addEventListener('hashchange', () => {
-            openModalForHash(window.location.hash);
-          });
-
-          // Valgfritt: manuelle knapper
-          const openLoginBtn  = document.getElementById('id-open-login');
-          const openSignupBtn = document.getElementById('id-open-signup');
-          const logoutBtn     = document.getElementById('id-logout');
-
-          if (openLoginBtn)  openLoginBtn.addEventListener('click',  () => netlifyIdentity.open('login'));
-          if (openSignupBtn) openSignupBtn.addEventListener('click', () => netlifyIdentity.open('signup'));
-          if (logoutBtn)     logoutBtn.addEventListener('click',     () => netlifyIdentity.logout());
+          netlifyIdentity.on('login', () => { window.location.href = '/admin/'; });
+          netlifyIdentity.on('logout', () => { window.location.href = '/'; });
+          openModalForHash(window.location.hash);
+          window.addEventListener('hashchange', () => openModalForHash(window.location.hash));
         }
-
-        // Start når DOM er klar
         if (document.readyState === 'loading') {
           document.addEventListener('DOMContentLoaded', initIdentity);
         } else {

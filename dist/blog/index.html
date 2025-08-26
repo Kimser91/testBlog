@@ -3,100 +3,92 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/styles.css">
     <title>Blogg</title>
   </head>
   <body>
-    <nav>
-      <a href="/">Hjem</a> | <a href="/blog/">Blogg</a> | <a href="/admin/">Admin</a>
-      <!-- Valgfritt: manuelle knapper -->
-      <!-- <button type="button" id="id-open-login">Logg inn</button>
-      <button type="button" id="id-open-signup">Opprett bruker</button>
-      <button type="button" id="id-logout">Logg ut</button> -->
+    <nav class="site-nav" aria-label="Hovednavigasjon">
+      <div class="container nav-inner">
+        <a class="brand" href="/">KimBlogg</a>
+        <div class="nav-links">
+          <a href="/">Hjem</a>
+          <a href="/blog/">Blogg</a>
+          <a href="/admin/">Admin</a>
+        </div>
+      </div>
     </nav>
 
-    <main>
-      <h1>Blogginnlegg</h1>
-<ul>
-<li>
-<p><a href="/blog/forste-innlegg/">Mitt første blogginnlegg</a></p>
-</li>
-<li>
-<p><a href="/blog/tysefsef/">tysefsef</a></p>
-</li>
-<li>
-<p><a href="/blog/asgadsgsd/">asgadsgsd</a></p>
-</li>
-<li>
-<p><a href="/blog/erhzhzhn/">erhzhzhn</a></p>
-</li>
-<li>
-<p><a href="/blog/dfhdhdfhd/">dfhdhdfhd</a></p>
-</li>
-</ul>
-
+    <!-- Støtter både Eleventy layout-innsprøytning og Nunjucks blocks -->
+    <main class="container prose" id="main-content">
+      
+        <h1>Blogginnlegg</h1>
+<div class="post-list">
+  <article class="post-card">
+    <h3><a href="/blog/dfhdhdfhd/">dfhdhdfhd</a></h3>
+    <div class="meta">%26.%39.%Y</div>
+    <p>dfjjajzfjdfj
+</p>
+    <p><a class="btn" href="/blog/dfhdhdfhd/">Les mer</a></p>
+  </article>
+  <article class="post-card">
+    <h3><a href="/blog/erhzhzhn/">erhzhzhn</a></h3>
+    <div class="meta">%26.%17.%Y</div>
+    <p>drzhrhdrhdrhr
+</p>
+    <p><a class="btn" href="/blog/erhzhzhn/">Les mer</a></p>
+  </article>
+  <article class="post-card">
+    <h3><a href="/blog/asgadsgsd/">asgadsgsd</a></h3>
+    <div class="meta">%26.%56.%Y</div>
+    <p>segsdgsdgsdgsdg
+</p>
+    <p><a class="btn" href="/blog/asgadsgsd/">Les mer</a></p>
+  </article>
+  <article class="post-card">
+    <h3><a href="/blog/tysefsef/">tysefsef</a></h3>
+    <div class="meta">%26.%54.%Y</div>
+    <p>esfgeshgsdhfhzxhfasjertgerg
+</p>
+    <p><a class="btn" href="/blog/tysefsef/">Les mer</a></p>
+  </article>
+  <article class="post-card">
+    <h3><a href="/blog/forste-innlegg/">Mitt første blogginnlegg</a></h3>
+    <div class="meta">%25.%0.%Y</div>
+    <p>Dette er starten på noe stort! 🎉
+Jeg bruker 11ty + Decap for å bygge min egen blogg.
+</p>
+    <p><a class="btn" href="/blog/forste-innlegg/">Les mer</a></p>
+  </article>
+</div>
+      
     </main>
+
+    <footer class="site-footer">
+      <div class="container">© Invalid DateTime Kim Halvar Thoresen</div>
+    </footer>
 
     <!-- Netlify Identity widget -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <script>
       (function () {
-        // Hjelpefunksjon: åpne riktig modal basert på hash
         function openModalForHash(h) {
           if (!h || !window.netlifyIdentity) return;
           if (h.includes('invite_token=')) {
-            console.log('[Identity] invite_token registrert → åpner signup-modal');
             netlifyIdentity.open('signup');
           } else if (h.includes('recovery_token=')) {
-            console.log('[Identity] recovery_token registrert → åpner login-modal');
             netlifyIdentity.open('login');
           }
         }
-
-        // Init og hendelser
         function initIdentity() {
           if (!window.netlifyIdentity) return;
-
-          // Init widget
           netlifyIdentity.init();
-
-          // Når widgeten er klar
-          netlifyIdentity.on('init', (user) => {
-            console.log('[Identity] init, user:', user);
-            // Sjekk hash ved første last
-            openModalForHash(window.location.hash);
-          });
-
-          // Håndter feil
-          netlifyIdentity.on('error', (err) => {
-            console.error('[Identity] error:', err);
-          });
-
-          // Etter login → gå til /admin/
-          netlifyIdentity.on('login', () => {
-            window.location.href = '/admin/';
-          });
-
-          // Etter logout → tilbake til forsiden (valgfritt)
-          netlifyIdentity.on('logout', () => {
-            window.location.href = '/';
-          });
-
-          // Lytt også på hash-endringer (i tilfelle lenken endrer hash etter load)
-          window.addEventListener('hashchange', () => {
-            openModalForHash(window.location.hash);
-          });
-
-          // Valgfritt: manuelle knapper
-          const openLoginBtn  = document.getElementById('id-open-login');
-          const openSignupBtn = document.getElementById('id-open-signup');
-          const logoutBtn     = document.getElementById('id-logout');
-
-          if (openLoginBtn)  openLoginBtn.addEventListener('click',  () => netlifyIdentity.open('login'));
-          if (openSignupBtn) openSignupBtn.addEventListener('click', () => netlifyIdentity.open('signup'));
-          if (logoutBtn)     logoutBtn.addEventListener('click',     () => netlifyIdentity.logout());
+          netlifyIdentity.on('login', () => { window.location.href = '/admin/'; });
+          netlifyIdentity.on('logout', () => { window.location.href = '/'; });
+          openModalForHash(window.location.hash);
+          window.addEventListener('hashchange', () => openModalForHash(window.location.hash));
         }
-
-        // Start når DOM er klar
         if (document.readyState === 'loading') {
           document.addEventListener('DOMContentLoaded', initIdentity);
         } else {

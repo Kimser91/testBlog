@@ -1,0 +1,146 @@
+/* === Design tokens === */
+:root{
+  --bg: #0b0c10;
+  --bg-elev: #121317;
+  --text: #e8eaed;
+  --muted: #a3a7ad;
+  --brand: #6ea8fe;
+  --brand-strong:#3d8bfd;
+  --card:#101217;
+  --border:#1e2230;
+  --radius:14px;
+  --shadow: 0 6px 30px rgba(0,0,0,.25);
+  --maxw: 960px;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --font: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+@media (prefers-color-scheme: light){
+  :root{
+    --bg:#ffffff;
+    --bg-elev:#f7f7f9;
+    --text:#14151a;
+    --muted:#5e6673;
+    --card:#ffffff;
+    --border:#e6e8ef;
+    --shadow: 0 6px 20px rgba(0,0,0,.08);
+  }
+}
+
+/* === Base === */
+*{ box-sizing:border-box }
+html,body{ height:100% }
+body{
+  margin:0;
+  font-family: var(--font);
+  color:var(--text);
+  background:linear-gradient(180deg, var(--bg) 0%, var(--bg-elev) 100%);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.container{
+  max-width: var(--maxw);
+  margin-inline:auto;
+  padding: 24px;
+}
+
+/* === Nav === */
+.site-nav{
+  position: sticky; top:0; z-index:50;
+  backdrop-filter: saturate(180%) blur(10px);
+  background: color-mix(in srgb, var(--bg) 75%, transparent);
+  border-bottom:1px solid var(--border);
+}
+.nav-inner{
+  display:flex; align-items:center; justify-content:space-between;
+  padding-block: 14px;
+}
+.brand{
+  font-weight:800; letter-spacing:.3px; text-decoration:none; color:var(--text);
+}
+.nav-links a{
+  color:var(--muted); text-decoration:none; margin-left:18px;
+}
+.nav-links a:hover{ color:var(--text) }
+
+/* === Footer === */
+.site-footer{
+  border-top:1px solid var(--border);
+  margin-top: 48px;
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+}
+.site-footer .container{ padding-block: 24px; color: var(--muted) }
+
+/* === Typography / Prose === */
+.prose{
+  line-height:1.7; font-size:1.05rem;
+}
+.prose h1,.prose h2,.prose h3{
+  line-height:1.2; margin-top:1.6em; margin-bottom:.6em; font-weight:800;
+}
+.prose h1{ font-size: clamp(1.8rem, 2.2vw + 1rem, 2.6rem) }
+.prose h2{ font-size: clamp(1.4rem, 1.5vw + 1rem, 2rem) }
+.prose h3{ font-size: 1.25rem }
+.prose p{ color:var(--text); margin: .9em 0 }
+.prose em{ color:var(--muted) }
+.prose a{ color:var(--brand); text-decoration: none; border-bottom: 1px dashed color-mix(in srgb, var(--brand) 60%, transparent) }
+.prose a:hover{ color:var(--brand-strong); border-bottom-style: solid }
+.prose img, .prose video{
+  max-width:100%; height:auto; display:block; border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin: 18px 0;
+}
+.prose blockquote{
+  margin: 1.2em 0; padding: 14px 18px; border-left: 4px solid var(--brand);
+  background: color-mix(in srgb, var(--bg-elev) 70%, transparent); border-radius: 0 var(--radius) var(--radius) 0;
+}
+.prose code{
+  font-family: var(--mono); font-size: .95em;
+  background: color-mix(in srgb, var(--bg-elev) 85%, transparent);
+  padding: .15em .4em; border-radius: 6px; border:1px solid var(--border);
+}
+pre{
+  background: var(--card); border:1px solid var(--border); border-radius: var(--radius);
+  padding: 16px; overflow: auto; box-shadow: var(--shadow);
+}
+pre code{ background: transparent; border:none; padding:0; display:block }
+
+/* === Cards for bloggoversikt === */
+.post-list{
+  display:grid; gap:18px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  margin: 24px 0;
+}
+.post-card{
+  background: var(--card); border:1px solid var(--border); border-radius: var(--radius);
+  padding:18px; box-shadow: var(--shadow); transition: transform .15s ease, box-shadow .2s ease;
+}
+.post-card:hover{ transform: translateY(-2px) }
+.post-card h3{ margin:0 0 8px 0; font-size: 1.1rem }
+.post-card .meta{ color: var(--muted); font-size: .9rem; margin-bottom: 10px }
+.post-card a{ text-decoration:none; color: var(--text) }
+.post-card a:hover{ color: var(--brand) }
+
+/* === Buttons (kan brukes i innlegg) === */
+.btn{
+  display:inline-block; padding: 10px 14px; border-radius: 10px;
+  background: var(--brand); color: white; text-decoration:none; border: none;
+  box-shadow: var(--shadow);
+}
+.btn:hover{ background: var(--brand-strong) }
+
+/* === Tables === */
+.prose table{
+  width:100%; border-collapse: collapse; border:1px solid var(--border);
+  border-radius: var(--radius); overflow:hidden; display:block; box-shadow: var(--shadow)
+}
+.prose thead{ background: color-mix(in srgb, var(--bg-elev) 70%, transparent) }
+.prose th, .prose td{
+  padding: 12px 14px; border-bottom:1px solid var(--border); text-align:left
+}
+
+/* === Small helpers === */
+.hidden{ display:none !important }
+.center{ text-align:center }
+.mt-2{ margin-top: .5rem } .mt-4{ margin-top: 1rem } .mt-6{ margin-top: 1.5rem }
