@@ -2,12 +2,18 @@
 <html lang="no">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Hjem</title>
   </head>
   <body>
     <nav>
-      <a href="/">Hjem</a> | <a href="/blog/">Blogg</a>
+      <a href="/">Hjem</a> | <a href="/blog/">Blogg</a> | <a href="/admin/">Admin</a>
+      <!-- Valgfritt: manuelle knapper -->
+      <!-- <button type="button" id="id-open-login">Logg inn</button>
+      <button type="button" id="id-open-signup">Opprett bruker</button>
+      <button type="button" id="id-logout">Logg ut</button> -->
     </nav>
+
     <main>
       <h1>Hei! Jeg er Kim 👋</h1>
 <p>Dette er min personlige blogg laget med 11ty og Decap CMS.</p>
@@ -17,34 +23,70 @@
     <!-- Netlify Identity widget -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <script>
-      // Init på alle sider
-      if (window.netlifyIdentity) {
-        netlifyIdentity.on('init', user => {
-          // console.log('Identity init', user)
-        });
-        netlifyIdentity.init();
-      }
+      (function () {
+        // Hjelpefunksjon: åpne riktig modal basert på hash
+        function openModalForHash(h) {
+          if (!h || !window.netlifyIdentity) return;
+          if (h.includes('invite_token=')) {
+            console.log('[Identity] invite_token registrert → åpner signup-modal');
+            netlifyIdentity.open('signup');
+          } else if (h.includes('recovery_token=')) {
+            console.log('[Identity] recovery_token registrert → åpner login-modal');
+            netlifyIdentity.open('login');
+          }
+        }
 
-      // Håndter invite / recovery tokens i URL-hashen
-      (function handleIdentityTokens() {
-        const h = window.location.hash || '';
-        if (!window.netlifyIdentity || !h) return;
+        // Init og hendelser
+        function initIdentity() {
+          if (!window.netlifyIdentity) return;
 
-        if (h.includes('recovery_token=')) {
-          // Reset-passord-flow
-          netlifyIdentity.open('login');
-        } else if (h.includes('invite_token=')) {
-          // Aksepter invitasjon-flow
-          netlifyIdentity.open('signup');
+          // Init widget
+          netlifyIdentity.init();
+
+          // Når widgeten er klar
+          netlifyIdentity.on('init', (user) => {
+            console.log('[Identity] init, user:', user);
+            // Sjekk hash ved første last
+            openModalForHash(window.location.hash);
+          });
+
+          // Håndter feil
+          netlifyIdentity.on('error', (err) => {
+            console.error('[Identity] error:', err);
+          });
+
+          // Etter login → gå til /admin/
+          netlifyIdentity.on('login', () => {
+            window.location.href = '/admin/';
+          });
+
+          // Etter logout → tilbake til forsiden (valgfritt)
+          netlifyIdentity.on('logout', () => {
+            window.location.href = '/';
+          });
+
+          // Lytt også på hash-endringer (i tilfelle lenken endrer hash etter load)
+          window.addEventListener('hashchange', () => {
+            openModalForHash(window.location.hash);
+          });
+
+          // Valgfritt: manuelle knapper
+          const openLoginBtn  = document.getElementById('id-open-login');
+          const openSignupBtn = document.getElementById('id-open-signup');
+          const logoutBtn     = document.getElementById('id-logout');
+
+          if (openLoginBtn)  openLoginBtn.addEventListener('click',  () => netlifyIdentity.open('login'));
+          if (openSignupBtn) openSignupBtn.addEventListener('click', () => netlifyIdentity.open('signup'));
+          if (logoutBtn)     logoutBtn.addEventListener('click',     () => netlifyIdentity.logout());
+        }
+
+        // Start når DOM er klar
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', initIdentity);
+        } else {
+          initIdentity();
         }
       })();
-
-      // (valgfritt) Etter vellykket login → hopp rett til /admin/
-      if (window.netlifyIdentity) {
-        netlifyIdentity.on('login', () => {
-          window.location.href = '/admin/';
-        });
-      }
     </script>
   </body>
 </html>
