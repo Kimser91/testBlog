@@ -2,8 +2,14 @@
   command = "npm run build"
   publish = "dist"
 
-
 [[redirects]]
   from = "/admin/*"
   to = "/admin/index.html"
   status = 200
+
+# 🔧 Tving korrekt MIME-type for config.yml
+[[headers]]
+  for = "/admin/config.yml"
+  [headers.values]
+    Content-Type = "text/yaml; charset=utf-8"
+    Cache-Control = "no-cache"
