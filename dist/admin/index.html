@@ -3,15 +3,15 @@
   <head>
     <meta charset="UTF-8" />
     <title>Bloggadmin</title>
+    <meta name="robots" content="noindex" />
   </head>
   <body>
-
-    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
-    
+    <script src="https://unpkg.com/decap-cms@3.8.3/dist/decap-cms.js"></script>
     <script>
-      window.addEventListener("DOMContentLoaded", () => {
-        CMS.init();
-      });
+      (function start() {
+        if (window.CMS) { CMS.init(); }
+        else { setTimeout(start, 50); }
+      })();
     </script>
   </body>
 </html>
