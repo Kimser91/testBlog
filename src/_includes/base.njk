@@ -13,36 +13,40 @@
     </main>
 
     <!-- Netlify Identity widget -->
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-    <script>
-      // Init på alle sider
-      if (window.netlifyIdentity) {
-        netlifyIdentity.on('init', user => {
-          // console.log('Identity init', user)
-        });
-        netlifyIdentity.init();
+<!-- Netlify Identity widget -->
+<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+<script>
+  (function () {
+    function openModalForHash(h) {
+      if (!h) return;
+      if (h.includes('invite_token=')) {
+        console.log('[Identity] invite_token registrert, åpner signup-modal');
+        netlifyIdentity.open('signup');
+      } else if (h.includes('recovery_token=')) {
+        console.log('[Identity] recovery_token registrert, åpner login-modal');
+        netlifyIdentity.open('login');
       }
+    }
 
-      // Håndter invite / recovery tokens i URL-hashen
-      (function handleIdentityTokens() {
-        const h = window.location.hash || '';
-        if (!window.netlifyIdentity || !h) return;
+    if (window.netlifyIdentity) {
+      netlifyIdentity.on('init', (user) => {
+        console.log('[Identity] init, user:', user);
+        openModalForHash(window.location.hash);
+      });
 
-        if (h.includes('recovery_token=')) {
-          // Reset-passord-flow
-          netlifyIdentity.open('login');
-        } else if (h.includes('invite_token=')) {
-          // Aksepter invitasjon-flow
-          netlifyIdentity.open('signup');
-        }
-      })();
+      netlifyIdentity.on('error', (err) => {
+        console.error('[Identity] error:', err);
+      });
 
-      // (valgfritt) Etter vellykket login → hopp rett til /admin/
-      if (window.netlifyIdentity) {
-        netlifyIdentity.on('login', () => {
-          window.location.href = '/admin/';
-        });
-      }
-    </script>
+      // Etter login -> gå direkte til admin
+      netlifyIdentity.on('login', () => {
+        window.location.href = '/admin/';
+      });
+
+      netlifyIdentity.init();
+    }
+  })();
+</script>
+
   </body>
 </html>
