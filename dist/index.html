@@ -6,7 +6,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/style.css">
-
     <title>Hjem</title>
   </head>
   <body>
@@ -21,7 +20,6 @@
       </div>
     </nav>
 
-    <!-- Støtter både Eleventy layout-innsprøytning og Nunjucks blocks -->
     <main class="container prose" id="main-content">
       
         <h1>Hei! Jeg er Kim 👋</h1>
@@ -31,7 +29,7 @@
     </main>
 
     <footer class="site-footer">
-      <div class="container">© Invalid DateTime Kim Halvar Thoresen</div>
+      <div class="container">© 2025 Kim Halvar Thoresen</div>
     </footer>
 
     <!-- Netlify Identity widget -->
@@ -40,11 +38,8 @@
       (function () {
         function openModalForHash(h) {
           if (!h || !window.netlifyIdentity) return;
-          if (h.includes('invite_token=')) {
-            netlifyIdentity.open('signup');
-          } else if (h.includes('recovery_token=')) {
-            netlifyIdentity.open('login');
-          }
+          if (h.includes('invite_token=')) { netlifyIdentity.open('signup'); }
+          else if (h.includes('recovery_token=')) { netlifyIdentity.open('login'); }
         }
         function initIdentity() {
           if (!window.netlifyIdentity) return;
@@ -54,11 +49,8 @@
           openModalForHash(window.location.hash);
           window.addEventListener('hashchange', () => openModalForHash(window.location.hash));
         }
-        if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', initIdentity);
-        } else {
-          initIdentity();
-        }
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initIdentity);
+        else initIdentity();
       })();
     </script>
   </body>
