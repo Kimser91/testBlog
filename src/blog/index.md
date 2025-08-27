@@ -6,7 +6,8 @@ layout: base.njk
 # Blogginnlegg
 
 <div class="post-list">
-{% for post in collections.blog reversed %}
+{% assign posts = collections.blog | reverse %}
+{% for post in posts %}
   <article class="post-card">
     <h3><a href="{{ post.url }}">{{ post.data.title }}</a></h3>
     <div class="meta">{{ post.date | date: "%d.%m.%Y" }}</div>

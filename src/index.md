@@ -1,7 +1,7 @@
 ---
+title: Test
 layout: base.njk
-title: Hjem
+templateEngineOverride: liquid
 ---
 
-# Hei! Jeg er Kim 👋  
-Dette er min personlige blogg laget med 11ty og Decap CMS.
+Dato nå: {{ "2025-08-27" | date: "%d.%m.%Y" }}
