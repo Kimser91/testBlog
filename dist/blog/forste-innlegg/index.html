@@ -69,6 +69,11 @@ Jeg bruker 11ty + Decap for å bygge min egen blogg.</p>
           initIdentity();
         }
       })();
+
+      netlifyIdentity.on('error', (err) => {
+  console.error('[Identity suppressed error]', err);
+});
+
     </script>
   </body>
 </html>

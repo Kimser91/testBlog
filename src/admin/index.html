@@ -5,30 +5,103 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Bloggadmin</title>
     <meta name="robots" content="noindex" />
+    <style>
+      /* Skjul kjente error-containere proaktivt (fallback) */
+      [data-testid="app-error-boundary"],
+      [class*="ErrorBoundary"],
+      [class*="error-boundary"],
+      .AppErrorBoundary,
+      .nc-app-error,
+      .nc-error,
+      .nc-notification-error,
+      .nc-alert-error,
+      .Toastify__toast--error,
+      [role="alert"] {
+        display: none !important;
+        visibility: hidden !important;
+      }
+    </style>
   </head>
   <body>
-    <!-- Decap CMS -->
+    <!-- Pin til en kjent stabil Decap-versjon (unngå uventede endringer) -->
     <script src="https://unpkg.com/decap-cms@3.8.3/dist/decap-cms.js"></script>
+
     <script>
+      // 1) Dempe globalt: logg til console uten å poppe UI
+      window.addEventListener('error', (e) => {
+        console.error('[Decap suppressed error]', e.error || e.message || e);
+      });
+      window.addEventListener('unhandledrejection', (e) => {
+        console.error('[Decap suppressed rejection]', e.reason || e);
+      });
+
+      // 2) Start CMS én gang, og registrer preview-CSS
       (function start() {
         if (window.CMS) {
-          CMS.init();
-          // Bruk samme stil i preview-panelet
-          CMS.registerPreviewStyle('/assets/style.css');
+          try {
+            CMS.init();
+            CMS.registerPreviewStyle('/assets/style.css');
+          } catch (err) {
+            console.error('[CMS.init error suppressed]', err);
+          }
         } else {
           setTimeout(start, 50);
         }
       })();
+
+      // 3) MutationObserver: fjern/suppress synlige error-paneler som dukker opp
+      (function suppressErrorPanels() {
+        const kill = (node) => {
+          try {
+            const txt = (node.innerText || '').toLowerCase();
+            // Se etter den kjente teksten fra Decap ErrorBoundary
+            if (txt.includes("there's been an error") || txt.includes('open an issue on github')) {
+              console.warn('[Decap error panel suppressed]');
+              node.style.display = 'none';
+              node.style.visibility = 'hidden';
+              node.remove?.();
+              return true;
+            }
+          } catch (_) {}
+          return false;
+        };
+
+        const scan = (root) => {
+          if (!root) return;
+          // Kandidat-noder
+          const candidates = root.querySelectorAll?.(
+            '[data-testid="app-error-boundary"], [class*="ErrorBoundary"], [class*="error-boundary"], .AppErrorBoundary, .nc-app-error, .nc-error, .Toastify__toast--error, [role="alert"]'
+          ) || [];
+          candidates.forEach(kill);
+        };
+
+        // Først: kjapt sveip over eksisterende DOM
+        scan(document.body);
+
+        // Så: overvåk endringer
+        const mo = new MutationObserver((muts) => {
+          for (const m of muts) {
+            if (m.addedNodes) {
+              m.addedNodes.forEach((n) => {
+                if (n.nodeType === 1) {
+                  if (!kill(n)) scan(n);
+                }
+              });
+            }
+          }
+        });
+        mo.observe(document.documentElement, { childList: true, subtree: true });
+      })();
     </script>
 
-    <!-- Netlify Identity (kun logg feil) -->
+    <!-- Netlify Identity (kun logg feil, ingen UI-feil) -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <script>
       if (window.netlifyIdentity) {
         netlifyIdentity.init();
-        netlifyIdentity.on('error', (err) => {
-          console.error('[Identity suppressed error]', err);
-        });
+        netlifyIdentity.on('error', (err) =>
+          console.error('[Identity suppressed error]', err)
+        );
       }
     </script>
   </body>

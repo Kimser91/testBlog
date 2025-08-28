@@ -161,3 +161,18 @@ pre code{ background: transparent; border:none; padding:0; display:block }
 div[role="alert"] {
   display: none !important;
 }
+
+/* Skjul generelle error-bannere */
+[data-testid="app-error-boundary"],
+[class*="ErrorBoundary"],
+[class*="error-boundary"],
+.AppErrorBoundary,
+.nc-app-error,
+.nc-error,
+.nc-notification-error,
+.nc-alert-error,
+.Toastify__toast--error,
+[role="alert"]{
+  display:none !important;
+  visibility:hidden !important;
+}

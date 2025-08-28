@@ -63,6 +63,11 @@
           initIdentity();
         }
       })();
+
+      netlifyIdentity.on('error', (err) => {
+  console.error('[Identity suppressed error]', err);
+});
+
     </script>
   </body>
 </html>

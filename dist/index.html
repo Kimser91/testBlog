@@ -65,6 +65,11 @@ Dato nå: %27.%0.%Y
           initIdentity();
         }
       })();
+
+      netlifyIdentity.on('error', (err) => {
+  console.error('[Identity suppressed error]', err);
+});
+
     </script>
   </body>
 </html>
