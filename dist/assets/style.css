@@ -144,3 +144,20 @@ pre code{ background: transparent; border:none; padding:0; display:block }
 .hidden{ display:none !important }
 .center{ text-align:center }
 .mt-2{ margin-top: .5rem } .mt-4{ margin-top: 1rem } .mt-6{ margin-top: 1.5rem }
+
+
+/* ---- Skjul synlige feilmeldinger i UI, behold logging i console ---- */
+
+/* Netlify Identity typiske error-noder */
+.netlify-identity-error,
+.netlify-identity-widget .error,
+.netlify-identity-modal .error {
+  display: none !important;
+}
+
+/* Decap CMS: skjul generelle error banners/alerts */
+[class*="ErrorBoundary"],
+[class*="error-boundary"],
+div[role="alert"] {
+  display: none !important;
+}

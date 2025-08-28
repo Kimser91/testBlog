@@ -7,25 +7,28 @@
     <meta name="robots" content="noindex" />
   </head>
   <body>
-    <!-- Last inn Decap CMS -->
-   <script src="https://unpkg.com/decap-cms@%5E3.0.0/dist/decap-cms.js"></script>
+    <!-- Decap CMS -->
+    <script src="https://unpkg.com/decap-cms@3.8.3/dist/decap-cms.js"></script>
     <script>
       (function start() {
         if (window.CMS) {
           CMS.init();
-          // Vis samme CSS i forhåndsvisningen
-          //CMS.registerPreviewStyle('/assets/style.css');
+          // Bruk samme stil i preview-panelet
+          CMS.registerPreviewStyle('/assets/style.css');
         } else {
           setTimeout(start, 50);
         }
       })();
     </script>
 
-    <!-- Netlify Identity widget slik at invite/recovery fungerer i admin også -->
+    <!-- Netlify Identity (kun logg feil) -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <script>
       if (window.netlifyIdentity) {
         netlifyIdentity.init();
+        netlifyIdentity.on('error', (err) => {
+          console.error('[Identity suppressed error]', err);
+        });
       }
     </script>
   </body>

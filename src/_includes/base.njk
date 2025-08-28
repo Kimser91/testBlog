@@ -39,16 +39,29 @@
           if (h.includes('invite_token=')) { netlifyIdentity.open('signup'); }
           else if (h.includes('recovery_token=')) { netlifyIdentity.open('login'); }
         }
+
         function initIdentity() {
           if (!window.netlifyIdentity) return;
+
           netlifyIdentity.init();
+
+          // Kun logg feil til konsoll (ikke vis i UI)
+          netlifyIdentity.on('error', (err) => {
+            console.error('[Identity suppressed error]', err);
+          });
+
           netlifyIdentity.on('login', () => { window.location.href = '/admin/'; });
           netlifyIdentity.on('logout', () => { window.location.href = '/'; });
+
           openModalForHash(window.location.hash);
           window.addEventListener('hashchange', () => openModalForHash(window.location.hash));
         }
-        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initIdentity);
-        else initIdentity();
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', initIdentity);
+        } else {
+          initIdentity();
+        }
       })();
     </script>
   </body>
