@@ -16,6 +16,7 @@
           <a href="/">Hjem</a>
           <a href="/blog/">Blogg</a>
           <a href="/admin/">Admin</a>
+          <a href="#" id="id-account">Konto</a>
         </div>
       </div>
     </nav>
@@ -83,6 +84,14 @@ Jeg bruker 11ty + Decap for å bygge min egen blogg.
           if (!window.netlifyIdentity) return;
 
           netlifyIdentity.init();
+          const account = document.getElementById('id-account');
+if (account && window.netlifyIdentity) {
+  account.addEventListener('click', (e) => {
+    e.preventDefault();
+    netlifyIdentity.open('user'); // åpner konto-panelet
+  });
+}
+
 
           // Kun logg feil til konsoll (ikke vis i UI)
           netlifyIdentity.on('error', (err) => {
