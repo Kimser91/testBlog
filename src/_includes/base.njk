@@ -49,33 +49,33 @@
 
           netlifyIdentity.init();
 
-          // Kun logg feil til konsoll (ikke vis i UI)
+          // Logg feil til konsoll, ikke i UI
           netlifyIdentity.on('error', (err) => {
             console.error('[Identity suppressed error]', err);
           });
 
-          // Konto-lenke i nav åpner brukerpanelet
+          // "Konto"-lenke: åpner login/profil-panelet
           const account = document.getElementById('id-account');
           if (account) {
             account.addEventListener('click', (e) => {
               e.preventDefault();
-              netlifyIdentity.open('user');
+              netlifyIdentity.open(); // login hvis utlogget, profil hvis innlogget
             });
           }
 
           const tokenPresent = hasToken(window.location.hash);
 
           if (tokenPresent) {
-            // Ved magic link (invite/reset):
-            // Når login skjer automatisk, åpne "user"-panelet så du kan sette nytt passord
+            // Ved magic-link (invite/reset): etter auto-login, åpne profil-panelet for å kunne endre passord
             netlifyIdentity.on('login', () => {
               // Fjern token fra URL så det ikke trigges igjen
               history.replaceState(null, '', window.location.pathname + window.location.search);
-              netlifyIdentity.open('user'); // her kan du velge "Change password"
-              // Merk: ingen redirect til /admin/ i dette tilfellet
+              // La Identity lande før vi åpner panelet
+              setTimeout(() => netlifyIdentity.open(), 50);
+              // Ingen redirect her – du kan sette passord først via "Change password"
             });
           } else {
-            // Normal innlogging (uten token) → rett til admin
+            // Normal innlogging uten token → rett til admin
             netlifyIdentity.on('login', () => { window.location.href = '/admin/'; });
           }
 
