@@ -37,33 +37,53 @@ Dato nå: %27.%0.%Y
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <script>
       (function () {
-        function openModalForHash(h) {
-          if (!h || !window.netlifyIdentity) return;
-          if (h.includes('invite_token=')) { netlifyIdentity.open('signup'); }
-          else if (h.includes('recovery_token=')) { netlifyIdentity.open('login'); }
+        function hasToken(hash) {
+          return !!hash && (hash.includes('invite_token=') || hash.includes('recovery_token='));
+        }
+        function openModalForHash(hash) {
+          if (!hash || !window.netlifyIdentity) return;
+          if (hash.includes('invite_token=')) { netlifyIdentity.open('signup'); }
+          else if (hash.includes('recovery_token=')) { netlifyIdentity.open('login'); }
         }
 
         function initIdentity() {
           if (!window.netlifyIdentity) return;
 
           netlifyIdentity.init();
-          const account = document.getElementById('id-account');
-if (account && window.netlifyIdentity) {
-  account.addEventListener('click', (e) => {
-    e.preventDefault();
-    netlifyIdentity.open('user'); // åpner konto-panelet
-  });
-}
-
 
           // Kun logg feil til konsoll (ikke vis i UI)
           netlifyIdentity.on('error', (err) => {
             console.error('[Identity suppressed error]', err);
           });
 
-          netlifyIdentity.on('login', () => { window.location.href = '/admin/'; });
+          // Konto-lenke i nav åpner brukerpanelet
+          const account = document.getElementById('id-account');
+          if (account) {
+            account.addEventListener('click', (e) => {
+              e.preventDefault();
+              netlifyIdentity.open('user');
+            });
+          }
+
+          const tokenPresent = hasToken(window.location.hash);
+
+          if (tokenPresent) {
+            // Ved magic link (invite/reset):
+            // Når login skjer automatisk, åpne "user"-panelet så du kan sette nytt passord
+            netlifyIdentity.on('login', () => {
+              // Fjern token fra URL så det ikke trigges igjen
+              history.replaceState(null, '', window.location.pathname + window.location.search);
+              netlifyIdentity.open('user'); // her kan du velge "Change password"
+              // Merk: ingen redirect til /admin/ i dette tilfellet
+            });
+          } else {
+            // Normal innlogging (uten token) → rett til admin
+            netlifyIdentity.on('login', () => { window.location.href = '/admin/'; });
+          }
+
           netlifyIdentity.on('logout', () => { window.location.href = '/'; });
 
+          // Håndter innkommende token-hash
           openModalForHash(window.location.hash);
           window.addEventListener('hashchange', () => openModalForHash(window.location.hash));
         }
@@ -74,11 +94,6 @@ if (account && window.netlifyIdentity) {
           initIdentity();
         }
       })();
-
-      netlifyIdentity.on('error', (err) => {
-  console.error('[Identity suppressed error]', err);
-});
-
     </script>
   </body>
 </html>
