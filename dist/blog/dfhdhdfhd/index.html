@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="/assets/style.css">
     <title>dfhdhdfhd</title>
     <style>
-      /* Enkle stiler for passordmodalen */
       .pw-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:1000}
       .pw-modal{background:var(--card, #111);color:var(--text, #fff);border:1px solid var(--border,#333);border-radius:14px;padding:18px;max-width:420px;width:92%;box-shadow:0 10px 30px rgba(0,0,0,.35)}
       .pw-modal h3{margin:0 0 10px;font-size:1.2rem}
@@ -84,8 +83,6 @@
           if (hash.includes('invite_token=')) { netlifyIdentity.open('signup'); }
           else if (hash.includes('recovery_token=')) { netlifyIdentity.open('login'); }
         }
-
-        // UI helpers for modal
         function showPwModal(email){
           document.getElementById('pw-email').textContent = email || '';
           document.getElementById('pw1').value = '';
@@ -110,12 +107,10 @@
 
           netlifyIdentity.init();
 
-          // Logg feil til konsoll, ikke i UI
           netlifyIdentity.on('error', (err) => {
             console.error('[Identity suppressed error]', err);
           });
 
-          // "Konto" åpner login/profil
           const account = document.getElementById('id-account');
           if (account) {
             account.addEventListener('click', (e) => {
@@ -124,7 +119,6 @@
             });
           }
 
-          // Endre passord-knapp (viser egen modal)
           const change = document.getElementById('id-change-pass');
           if (change) {
             change.addEventListener('click', (e) => {
@@ -135,7 +129,6 @@
             });
           }
 
-          // Modal-knapper
           document.getElementById('pw-cancel').addEventListener('click', hidePwModal);
           document.getElementById('pw-backdrop').addEventListener('click', (e) => {
             if (e.target.id === 'pw-backdrop') hidePwModal();
@@ -169,12 +162,10 @@
             }
           });
 
-          // Auth UI state
           netlifyIdentity.on('init', updateAuthUI);
           netlifyIdentity.on('login', () => { updateAuthUI(); });
           netlifyIdentity.on('logout', () => { updateAuthUI(); });
 
-          // Token-flyt (invite/reset): etter auto-login → vis direkte “Endre passord”
           const tokenPresent = hasToken(window.location.hash);
           if (tokenPresent) {
             netlifyIdentity.on('login', () => {
@@ -185,17 +176,14 @@
               }, 50);
             });
           } else {
-            // Normal innlogging uten token → rett til admin
             netlifyIdentity.on('login', () => { window.location.href = '/admin/'; });
           }
 
           netlifyIdentity.on('logout', () => { window.location.href = '/'; });
 
-          // Håndter innkommende token-hash
           openModalForHash(window.location.hash);
           window.addEventListener('hashchange', () => openModalForHash(window.location.hash));
 
-          // Sett initial UI state
           updateAuthUI();
         }
 

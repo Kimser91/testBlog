@@ -1,7 +1,9 @@
 ---
-title: Test
+title: Hjem
 layout: base.njk
-templateEngineOverride: liquid
 ---
 
-Dato nå: {{ "2025-08-27" | date: "%d.%m.%Y" }}
+# Hei!
+
+Dette er forsiden.  
+Dato nå: {% today "dd.MM.yyyy" %}

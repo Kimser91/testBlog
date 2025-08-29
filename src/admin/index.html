@@ -6,7 +6,6 @@
     <title>Bloggadmin</title>
     <meta name="robots" content="noindex" />
     <style>
-      /* Skjul kjente error-containere proaktivt (fallback) */
       [data-testid="app-error-boundary"],
       [class*="ErrorBoundary"],
       [class*="error-boundary"],
@@ -16,14 +15,10 @@
       .nc-notification-error,
       .nc-alert-error,
       .Toastify__toast--error,
-      [role="alert"] {
-        display: none !important;
-        visibility: hidden !important;
-      }
+      [role="alert"] { display: none !important; visibility: hidden !important; }
     </style>
   </head>
   <body>
-    <!-- Pin til en kjent stabil Decap-versjon -->
     <script src="https://unpkg.com/decap-cms@3.8.3/dist/decap-cms.js"></script>
     <script>
       (function start() {
@@ -38,12 +33,10 @@
           setTimeout(start, 50);
         }
       })();
-      // Dempe globalt: logg til console uten UI
       window.addEventListener('error', (e) => console.error('[Decap suppressed error]', e.error || e.message || e));
       window.addEventListener('unhandledrejection', (e) => console.error('[Decap suppressed rejection]', e.reason || e));
     </script>
 
-    <!-- Netlify Identity (kun logg feil) -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <script>
       if (window.netlifyIdentity) {
