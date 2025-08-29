@@ -6,6 +6,7 @@
     <title>Bloggadmin</title>
     <meta name="robots" content="noindex" />
     <style>
+      /* Skjul kjente error-containere i UI */
       [data-testid="app-error-boundary"],
       [class*="ErrorBoundary"],
       [class*="error-boundary"],
@@ -16,9 +17,27 @@
       .nc-alert-error,
       .Toastify__toast--error,
       [role="alert"] { display: none !important; visibility: hidden !important; }
+
+      /* Liten knapp for passordbytte (valgfri) */
+      .pw-fab {
+        position: fixed; right: 16px; bottom: 16px; z-index: 1000;
+        padding: 10px 12px; border-radius: 10px; border: none; cursor: pointer;
+        background: #3d8bfd; color: #fff; font: 600 14px/1 Inter, system-ui, sans-serif;
+        box-shadow: 0 6px 18px rgba(0,0,0,.25);
+      }
+      .pw-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:1001}
+      .pw-modal{background:#111;color:#fff;border:1px solid #333;border-radius:14px;padding:18px;max-width:420px;width:92%}
+      .pw-modal h3{margin:0 0 10px;font-size:1.1rem}
+      .pw-modal label{display:block;margin-top:10px}
+      .pw-modal input{width:100%;padding:10px;border-radius:10px;border:1px solid #333;background:#1a1b20;color:#fff}
+      .pw-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}
+      .btn{padding:10px 14px;border-radius:10px;border:none;cursor:pointer}
+      .btn.primary{background:#3d8bfd;color:#fff}
+      .btn.secondary{background:#5e6673;color:#fff}
     </style>
   </head>
   <body>
+    <!-- Decap CMS -->
     <script src="https://unpkg.com/decap-cms@3.8.3/dist/decap-cms.js"></script>
     <script>
       (function start() {
@@ -27,22 +46,119 @@
             CMS.init();
             CMS.registerPreviewStyle('/assets/style.css');
           } catch (err) {
-            console.error('[CMS.init error suppressed]', err);
+            console.error('[CMS.init]', err);
           }
         } else {
           setTimeout(start, 50);
         }
       })();
-      window.addEventListener('error', (e) => console.error('[Decap suppressed error]', e.error || e.message || e));
-      window.addEventListener('unhandledrejection', (e) => console.error('[Decap suppressed rejection]', e.reason || e));
+
+      window.addEventListener('error', (e) => console.error('[Decap]', e.error || e.message || e));
+      window.addEventListener('unhandledrejection', (e) => console.error('[Decap]', e.reason || e));
     </script>
 
+    <!-- Netlify Identity for admin (login + valgfri passordbytte) -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <script>
-      if (window.netlifyIdentity) {
-        netlifyIdentity.init();
-        netlifyIdentity.on('error', (err) => console.error('[Identity suppressed error]', err));
-      }
+      (function () {
+        function $(id){ return document.getElementById(id); }
+
+        function showPwModal(email){
+          $('pw-email').textContent = email || '';
+          $('pw1').value = '';
+          $('pw2').value = '';
+          const bd = $('pw-backdrop'); bd.style.display = 'flex'; bd.setAttribute('aria-hidden','false');
+        }
+        function hidePwModal(){
+          const bd = $('pw-backdrop'); bd.style.display = 'none'; bd.setAttribute('aria-hidden','true');
+        }
+
+        function initIdentity(){
+          if (!window.netlifyIdentity) return;
+          netlifyIdentity.init();
+          netlifyIdentity.on('error', (err) => console.error('[Identity]', err));
+
+          // Vis passordknappen kun når innlogget
+          function updateFab(){
+            const u = netlifyIdentity.currentUser();
+            const btn = $('pw-fab');
+            if (!btn) return;
+            btn.style.display = u ? 'inline-flex' : 'none';
+          }
+          netlifyIdentity.on('init', updateFab);
+          netlifyIdentity.on('login', updateFab);
+          netlifyIdentity.on('logout', updateFab);
+
+          // FAB-click → åpne modal
+          document.addEventListener('click', (e) => {
+            if (e.target && e.target.id === 'pw-fab') {
+              e.preventDefault();
+              const u = netlifyIdentity.currentUser();
+              if (!u) { netlifyIdentity.open(); return; }
+              showPwModal(u.email);
+            }
+          });
+
+          // Modal-knapper
+          document.addEventListener('click', async (e) => {
+            if (e.target && e.target.id === 'pw-cancel') { hidePwModal(); }
+            if (e.target && e.target.id === 'pw-backdrop') { hidePwModal(); }
+            if (e.target && e.target.id === 'pw-save') {
+              try {
+                const u = netlifyIdentity.currentUser();
+                if (!u) { alert('Du må være innlogget.'); return; }
+                const p1 = $('pw1').value.trim(), p2 = $('pw2').value.trim();
+                if (p1.length < 8) { alert('Passord må være minst 8 tegn.'); return; }
+                if (p1 !== p2) { alert('Passordene er ikke like.'); return; }
+                await u.update({ password: p1 });
+                console.info('[Identity] Password updated');
+                hidePwModal();
+                alert('Passord er oppdatert ✅');
+              } catch (err) {
+                console.error('[Identity] Update password error', err);
+                alert('Kunne ikke oppdatere passord. Prøv igjen.');
+              }
+            }
+            if (e.target && e.target.id === 'pw-send-reset') {
+              try {
+                const u = netlifyIdentity.currentUser();
+                if (!u) { alert('Du må være innlogget.'); return; }
+                await netlifyIdentity.gotrue.requestPasswordRecovery(u.email);
+                alert('Reset-epost sendt ✅ Sjekk innboksen din.');
+              } catch (err) {
+                console.error('[Identity] requestPasswordRecovery error', err);
+                alert('Kunne ikke sende reset-epost. Prøv igjen.');
+              }
+            }
+          });
+        }
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', initIdentity);
+        } else {
+          initIdentity();
+        }
+      })();
     </script>
+
+    <!-- Valgfri “Endre passord”-knapp + modal -->
+    <button id="pw-fab" class="pw-fab" style="display:none">Endre passord</button>
+    <div id="pw-backdrop" class="pw-modal-backdrop" aria-hidden="true">
+      <div class="pw-modal" role="dialog" aria-modal="true" aria-labelledby="pw-title">
+        <h3 id="pw-title">Endre passord</h3>
+        <p>Innlogget som <strong id="pw-email"></strong></p>
+        <label>Ny passord
+          <input id="pw1" type="password" autocomplete="new-password" placeholder="Minst 8 tegn" />
+        </label>
+        <label>Gjenta nytt passord
+          <input id="pw2" type="password" autocomplete="new-password" />
+        </label>
+        <div class="pw-actions">
+          <button class="btn secondary" id="pw-cancel">Avbryt</button>
+          <button class="btn secondary" id="pw-send-reset">Send reset-epost</button>
+          <button class="btn primary" id="pw-save">Lagre</button>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
