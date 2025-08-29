@@ -166,24 +166,17 @@
 
           // Auth UI state
           netlifyIdentity.on('init', updateAuthUI);
-          netlifyIdentity.on('login', () => {
-            updateAuthUI();
-          });
-          netlifyIdentity.on('logout', () => {
-            updateAuthUI();
-          });
+          netlifyIdentity.on('login', () => { updateAuthUI(); });
+          netlifyIdentity.on('logout', () => { updateAuthUI(); });
 
-          // Token-flyt (invite/reset): etter auto-login → åpne panelet
+          // Token-flyt (invite/reset): etter auto-login → vis direkte “Endre passord”
           const tokenPresent = hasToken(window.location.hash);
           if (tokenPresent) {
             netlifyIdentity.on('login', () => {
-              // Fjern token fra URL så det ikke trigges igjen
               history.replaceState(null, '', window.location.pathname + window.location.search);
-              // Åpne profil (så kan du evt. trykke "Endre passord"), evt. vis direkte modal
               setTimeout(() => {
-                // netlifyIdentity.open(); // åpn widget
                 const u = netlifyIdentity.currentUser();
-                if (u) showPwModal(u.email); // direkte til vår passord-modal
+                if (u) showPwModal(u.email);
               }, 50);
             });
           } else {

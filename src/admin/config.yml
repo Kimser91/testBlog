@@ -5,18 +5,15 @@ backend:
 media_folder: "src/images/uploads"
 public_folder: "/images/uploads"
 
-media_library:
-  name: upload
-
 collections:
   - name: "blog"
-    label: "Blogginnlegg"
+    label: "Blogg"
     folder: "src/blog"
     create: true
-    slug: "{{slug}}"
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
     fields:
+      - { label: "Tittel", name: "title", widget: "string" }
+      - { label: "Publisert dato", name: "date", widget: "datetime" }
       - { label: "Layout", name: "layout", widget: "hidden", default: "post.njk" }
       - { label: "Tags", name: "tags", widget: "hidden", default: ["blog"] }
-      - { label: "Tittel", name: "title", widget: "string" }
-      - { label: "Dato",  name: "date",  widget: "datetime" }
       - { label: "Innhold", name: "body", widget: "markdown" }

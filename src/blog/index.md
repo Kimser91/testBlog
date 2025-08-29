@@ -10,7 +10,7 @@ layout: base.njk
 {% for post in posts %}
   <article class="post-card">
     <h3><a href="{{ post.url }}">{{ post.data.title }}</a></h3>
-    <div class="meta">{{ post.date | date: "%d.%m.%Y" }}</div>
+    <div class="meta">{{ post.data.formattedDate }}</div>
     <p>{{ post.templateContent | strip_html | truncate: 160 }}</p>
     <p><a class="btn" href="{{ post.url }}">Les mer</a></p>
   </article>

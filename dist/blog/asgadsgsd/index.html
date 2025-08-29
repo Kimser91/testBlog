@@ -7,6 +7,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/style.css">
     <title>asgadsgsd</title>
+    <style>
+      /* Enkle stiler for passordmodalen */
+      .pw-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:1000}
+      .pw-modal{background:var(--card, #111);color:var(--text, #fff);border:1px solid var(--border,#333);border-radius:14px;padding:18px;max-width:420px;width:92%;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+      .pw-modal h3{margin:0 0 10px;font-size:1.2rem}
+      .pw-modal label{display:block;margin-top:10px;font-size:.95rem}
+      .pw-modal input{width:100%;padding:10px;border-radius:10px;border:1px solid var(--border,#333);background:var(--bg-elev,#1a1b20);color:inherit}
+      .pw-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:14px}
+      .btn{display:inline-block;padding:10px 14px;border-radius:10px;background:#3d8bfd;color:#fff;border:none;cursor:pointer}
+      .btn.secondary{background:#5e6673}
+      .pw-hint{font-size:.9rem;color:var(--muted,#a3a7ad);margin-top:8px}
+      .hidden{display:none !important}
+    </style>
   </head>
   <body>
     <nav class="site-nav" aria-label="Hovednavigasjon">
@@ -17,6 +30,7 @@
           <a href="/blog/">Blogg</a>
           <a href="/admin/">Admin</a>
           <a href="#" id="id-account">Konto</a>
+          <a href="#" id="id-change-pass" class="hidden">Endre passord</a>
         </div>
       </div>
     </nav>
@@ -36,6 +50,28 @@
       <div class="container">© 2025 Kim Halvar Thoresen</div>
     </footer>
 
+    <!-- Passord-modal -->
+    <div id="pw-backdrop" class="pw-modal-backdrop" aria-hidden="true">
+      <div class="pw-modal" role="dialog" aria-modal="true" aria-labelledby="pw-title">
+        <h3 id="pw-title">Endre passord</h3>
+        <p class="pw-hint">Du er innlogget som <span id="pw-email"></span>.</p>
+        <label>Nytt passord
+          <input id="pw1" type="password" autocomplete="new-password" placeholder="Minst 8 tegn" />
+        </label>
+        <label>Gjenta nytt passord
+          <input id="pw2" type="password" autocomplete="new-password" />
+        </label>
+        <div class="pw-hint">
+          Alternativt kan du sende deg en reset-epost og sette passord via e-postlenke.
+        </div>
+        <div class="pw-actions">
+          <button class="btn secondary" id="pw-cancel">Avbryt</button>
+          <button class="btn secondary" id="pw-send-reset">Send reset-epost</button>
+          <button class="btn" id="pw-save">Lagre</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Netlify Identity widget -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
     <script>
@@ -49,38 +85,107 @@
           else if (hash.includes('recovery_token=')) { netlifyIdentity.open('login'); }
         }
 
+        // UI helpers for modal
+        function showPwModal(email){
+          document.getElementById('pw-email').textContent = email || '';
+          document.getElementById('pw1').value = '';
+          document.getElementById('pw2').value = '';
+          const bd = document.getElementById('pw-backdrop');
+          bd.style.display = 'flex';
+          bd.setAttribute('aria-hidden','false');
+        }
+        function hidePwModal(){
+          const bd = document.getElementById('pw-backdrop');
+          bd.style.display = 'none';
+          bd.setAttribute('aria-hidden','true');
+        }
+        function updateAuthUI(){
+          const u = window.netlifyIdentity?.currentUser();
+          const change = document.getElementById('id-change-pass');
+          if (change) change.classList.toggle('hidden', !u);
+        }
+
         function initIdentity() {
           if (!window.netlifyIdentity) return;
 
           netlifyIdentity.init();
 
-          // Kun logg feil til konsoll (ikke vis i UI)
+          // Logg feil til konsoll, ikke i UI
           netlifyIdentity.on('error', (err) => {
             console.error('[Identity suppressed error]', err);
           });
 
-          // Konto-lenke i nav åpner brukerpanelet
+          // "Konto" åpner login/profil
           const account = document.getElementById('id-account');
           if (account) {
             account.addEventListener('click', (e) => {
               e.preventDefault();
-              netlifyIdentity.open('user');
+              netlifyIdentity.open(); // login hvis utlogget, profil hvis innlogget
             });
           }
 
-          const tokenPresent = hasToken(window.location.hash);
+          // Endre passord-knapp (viser egen modal)
+          const change = document.getElementById('id-change-pass');
+          if (change) {
+            change.addEventListener('click', (e) => {
+              e.preventDefault();
+              const u = netlifyIdentity.currentUser();
+              if (!u) { netlifyIdentity.open(); return; }
+              showPwModal(u.email);
+            });
+          }
 
+          // Modal-knapper
+          document.getElementById('pw-cancel').addEventListener('click', hidePwModal);
+          document.getElementById('pw-backdrop').addEventListener('click', (e) => {
+            if (e.target.id === 'pw-backdrop') hidePwModal();
+          });
+          document.getElementById('pw-save').addEventListener('click', async () => {
+            try{
+              const u = netlifyIdentity.currentUser();
+              if (!u) { alert('Du må være innlogget.'); return; }
+              const p1 = document.getElementById('pw1').value.trim();
+              const p2 = document.getElementById('pw2').value.trim();
+              if (p1.length < 8) { alert('Passord må være minst 8 tegn.'); return; }
+              if (p1 !== p2) { alert('Passordene er ikke like.'); return; }
+              await u.update({ password: p1 });
+              console.info('[Identity] Password updated');
+              hidePwModal();
+              alert('Passord er oppdatert ✅');
+            }catch(err){
+              console.error('[Identity] Update password error', err);
+              alert('Kunne ikke oppdatere passord. Prøv igjen.');
+            }
+          });
+          document.getElementById('pw-send-reset').addEventListener('click', async () => {
+            try{
+              const u = netlifyIdentity.currentUser();
+              if (!u) { alert('Du må være innlogget.'); return; }
+              await netlifyIdentity.gotrue.requestPasswordRecovery(u.email);
+              alert('Reset-epost sendt ✅ Sjekk innboksen din.');
+            }catch(err){
+              console.error('[Identity] requestPasswordRecovery error', err);
+              alert('Kunne ikke sende reset-epost. Prøv igjen.');
+            }
+          });
+
+          // Auth UI state
+          netlifyIdentity.on('init', updateAuthUI);
+          netlifyIdentity.on('login', () => { updateAuthUI(); });
+          netlifyIdentity.on('logout', () => { updateAuthUI(); });
+
+          // Token-flyt (invite/reset): etter auto-login → vis direkte “Endre passord”
+          const tokenPresent = hasToken(window.location.hash);
           if (tokenPresent) {
-            // Ved magic link (invite/reset):
-            // Når login skjer automatisk, åpne "user"-panelet så du kan sette nytt passord
             netlifyIdentity.on('login', () => {
-              // Fjern token fra URL så det ikke trigges igjen
               history.replaceState(null, '', window.location.pathname + window.location.search);
-              netlifyIdentity.open('user'); // her kan du velge "Change password"
-              // Merk: ingen redirect til /admin/ i dette tilfellet
+              setTimeout(() => {
+                const u = netlifyIdentity.currentUser();
+                if (u) showPwModal(u.email);
+              }, 50);
             });
           } else {
-            // Normal innlogging (uten token) → rett til admin
+            // Normal innlogging uten token → rett til admin
             netlifyIdentity.on('login', () => { window.location.href = '/admin/'; });
           }
 
@@ -89,6 +194,9 @@
           // Håndter innkommende token-hash
           openModalForHash(window.location.hash);
           window.addEventListener('hashchange', () => openModalForHash(window.location.hash));
+
+          // Sett initial UI state
+          updateAuthUI();
         }
 
         if (document.readyState === 'loading') {
